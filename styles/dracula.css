@@ -1,0 +1,115 @@
+/* Dracula 主题 */
+body {
+  background-color: #282a36;
+  color: #f8f8f2;
+}
+
+.toolbar {
+  background-color: #44475a;
+  border-bottom: 1px solid #6272a4;
+}
+
+button {
+  background-color: #44475a;
+  border: 1px solid #6272a4;
+  color: #f8f8f2;
+}
+
+button:hover {
+  background-color: #6272a4;
+}
+
+.resizer {
+  background-color: #44475a;
+}
+
+.resizer:hover, .resizer.active {
+  background-color: #bd93f9;
+}
+
+#editor {
+  background-color: #282a36;
+  color: #f8f8f2;
+  border: 1px solid #44475a;
+}
+
+.preview-container {
+  background-color: #282a36;
+}
+
+.theme-content {
+  background-color: #44475a;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+}
+
+.theme-content a {
+  color: #f8f8f2;
+}
+
+.theme-content a:hover {
+  background-color: #6272a4;
+}
+
+/* Markdown 内容样式 */
+.markdown-body {
+  color: #f8f8f2;
+}
+
+.markdown-body h1, 
+.markdown-body h2, 
+.markdown-body h3, 
+.markdown-body h4, 
+.markdown-body h5, 
+.markdown-body h6 {
+  color: #ff79c6;
+  border-bottom: 1px solid #44475a;
+}
+
+.markdown-body a {
+  color: #8be9fd;
+}
+
+.markdown-body blockquote {
+  color: #6272a4;
+  border-left: 4px solid #44475a;
+}
+
+.markdown-body hr {
+  background-color: #44475a;
+}
+
+.markdown-body table tr {
+  background-color: #282a36;
+  border-top: 1px solid #44475a;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #44475a;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  border: 1px solid #6272a4;
+}
+
+.markdown-body code {
+  background-color: #44475a;
+  color: #50fa7b;
+}
+
+.markdown-body pre {
+  background-color: #44475a;
+}
+
+.markdown-body pre code {
+  background-color: transparent;
+}
+
+/* 特殊元素颜色 */
+.markdown-body strong {
+  color: #ffb86c;
+}
+
+.markdown-body em {
+  color: #f1fa8c;
+}

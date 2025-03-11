@@ -1,0 +1,106 @@
+/* Solarized Light 主题 */
+body {
+  background-color: #fdf6e3;
+  color: #657b83;
+}
+
+.toolbar {
+  background-color: #eee8d5;
+  border-bottom: 1px solid #d5d0c0;
+}
+
+button {
+  background-color: #fdf6e3;
+  border: 1px solid #d5d0c0;
+  color: #657b83;
+}
+
+button:hover {
+  background-color: #eee8d5;
+}
+
+.resizer {
+  background-color: #d5d0c0;
+}
+
+.resizer:hover, .resizer.active {
+  background-color: #93a1a1;
+}
+
+#editor {
+  background-color: #fdf6e3;
+  color: #657b83;
+  border: 1px solid #eee8d5;
+}
+
+.preview-container {
+  background-color: #fdf6e3;
+}
+
+.theme-content {
+  background-color: #fdf6e3;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1);
+}
+
+.theme-content a {
+  color: #657b83;
+}
+
+.theme-content a:hover {
+  background-color: #eee8d5;
+}
+
+/* Markdown 内容样式 */
+.markdown-body {
+  color: #657b83;
+}
+
+.markdown-body h1, 
+.markdown-body h2, 
+.markdown-body h3, 
+.markdown-body h4, 
+.markdown-body h5, 
+.markdown-body h6 {
+  color: #b58900;
+  border-bottom: 1px solid #eee8d5;
+}
+
+.markdown-body a {
+  color: #268bd2;
+}
+
+.markdown-body blockquote {
+  color: #93a1a1;
+  border-left: 4px solid #eee8d5;
+}
+
+.markdown-body hr {
+  background-color: #eee8d5;
+}
+
+.markdown-body table tr {
+  background-color: #fdf6e3;
+  border-top: 1px solid #eee8d5;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #eee8d5;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  border: 1px solid #d5d0c0;
+}
+
+.markdown-body code {
+  background-color: #eee8d5;
+  color: #cb4b16;
+}
+
+.markdown-body pre {
+  background-color: #eee8d5;
+}
+
+.markdown-body pre code {
+  background-color: transparent;
+}

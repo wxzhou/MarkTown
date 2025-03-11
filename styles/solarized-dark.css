@@ -1,0 +1,106 @@
+/* Solarized Dark 主题 */
+body {
+  background-color: #002b36;
+  color: #839496;
+}
+
+.toolbar {
+  background-color: #073642;
+  border-bottom: 1px solid #083f4d;
+}
+
+button {
+  background-color: #073642;
+  border: 1px solid #083f4d;
+  color: #839496;
+}
+
+button:hover {
+  background-color: #083f4d;
+}
+
+.resizer {
+  background-color: #083f4d;
+}
+
+.resizer:hover, .resizer.active {
+  background-color: #586e75;
+}
+
+#editor {
+  background-color: #002b36;
+  color: #839496;
+  border: 1px solid #073642;
+}
+
+.preview-container {
+  background-color: #002b36;
+}
+
+.theme-content {
+  background-color: #073642;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+}
+
+.theme-content a {
+  color: #839496;
+}
+
+.theme-content a:hover {
+  background-color: #083f4d;
+}
+
+/* Markdown 内容样式 */
+.markdown-body {
+  color: #839496;
+}
+
+.markdown-body h1, 
+.markdown-body h2, 
+.markdown-body h3, 
+.markdown-body h4, 
+.markdown-body h5, 
+.markdown-body h6 {
+  color: #b58900;
+  border-bottom: 1px solid #073642;
+}
+
+.markdown-body a {
+  color: #268bd2;
+}
+
+.markdown-body blockquote {
+  color: #586e75;
+  border-left: 4px solid #073642;
+}
+
+.markdown-body hr {
+  background-color: #073642;
+}
+
+.markdown-body table tr {
+  background-color: #002b36;
+  border-top: 1px solid #073642;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #073642;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  border: 1px solid #083f4d;
+}
+
+.markdown-body code {
+  background-color: #073642;
+  color: #cb4b16;
+}
+
+.markdown-body pre {
+  background-color: #073642;
+}
+
+.markdown-body pre code {
+  background-color: transparent;
+}
