@@ -200,6 +200,61 @@ window.onload = function() {
         return `MATHBLOCK${mathBlocks.length - 1}ENDMATHBLOCK`;
       });
       
+      // 处理 [TOC] 标记
+      let hasToc = false;
+      let tocHtml = '';
+      
+      if (protectedText.includes('[TOC]')) {
+        hasToc = true;
+        // 提取所有标题
+        const headings = [];
+        const headingRegex = /^(#{1,6})\s+(.+)$/gm;
+        let match;
+        
+        while ((match = headingRegex.exec(protectedText)) !== null) {
+          const level = match[1].length;
+          const text = match[2].trim();
+          const slug = text.toLowerCase()
+            .replace(/[^\w\u4e00-\u9fa5\- ]/g, '') // 保留中文字符
+            .replace(/\s+/g, '-');
+          
+          headings.push({ level, text, slug });
+        }
+        
+        // 生成目录HTML
+        if (headings.length > 0) {
+          tocHtml = '<div class="markdown-toc"><h3>目录</h3><ul>';
+          let lastLevel = 0;
+          
+          headings.forEach(heading => {
+            if (heading.level > lastLevel) {
+              // 增加嵌套
+              for (let i = 0; i < heading.level - lastLevel; i++) {
+                tocHtml += '<ul>';
+              }
+            } else if (heading.level < lastLevel) {
+              // 减少嵌套
+              for (let i = 0; i < lastLevel - heading.level; i++) {
+                tocHtml += '</ul>';
+              }
+            }
+            
+            tocHtml += `<li><a href="#${heading.slug}">${heading.text}</a></li>`;
+            lastLevel = heading.level;
+          });
+          
+          // 关闭所有嵌套的ul
+          for (let i = 0; i < lastLevel; i++) {
+            tocHtml += '</ul>';
+          }
+          
+          tocHtml += '</ul></div>';
+        }
+        
+        // 替换 [TOC] 标记
+        protectedText = protectedText.replace('[TOC]', tocHtml);
+      }
+      
       // 使用简单配置
       marked.setOptions({
         highlight: function(code, lang) {
@@ -231,6 +286,24 @@ window.onload = function() {
       renderedHtml = renderedHtml.replace(/MATHBLOCK(\d+)ENDMATHBLOCK/g, function(match, index) {
         return mathBlocks[parseInt(index)];
       });
+      
+      // 添加ID到标题元素，以便TOC链接可以正常工作
+      if (hasToc) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = renderedHtml;
+        
+        const headings = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
+        headings.forEach(heading => {
+          const text = heading.textContent;
+          const slug = text.toLowerCase()
+            .replace(/[^\w\u4e00-\u9fa5\- ]/g, '')
+            .replace(/\s+/g, '-');
+          
+          heading.id = slug;
+        });
+        
+        renderedHtml = tempDiv.innerHTML;
+      }
       
       preview.innerHTML = renderedHtml;
       
