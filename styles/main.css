@@ -1,0 +1,331 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f5f5f5;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* 防止整个页面滚动 */
+}
+
+body.dark-mode {
+  background-color: #0d1117;
+  color: #c9d1d9;
+}
+
+.toolbar {
+  display: flex;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #ddd;
+  position: sticky; /* 固定工具栏 */
+  top: 0;
+  z-index: 100; /* 确保工具栏在最上层 */
+}
+
+.dark-mode .toolbar {
+  background-color: #161b22;
+  border-bottom: 1px solid #30363d;
+}
+
+button {
+  padding: 4px 10px;  /* 进一步减小内边距，降低高度 */
+  margin-right: 8px;
+  background-color: transparent;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #666;
+  transition: all 0.2s ease;
+  height: 26px;  /* 统一按钮高度 */
+  line-height: 16px;  /* 确保文本垂直居中 */
+  box-sizing: border-box;  /* 确保padding不会增加总高度 */
+}
+
+.dark-mode button {
+  background-color: transparent;
+  border: 1px solid #30363d;
+  color: #8b949e;
+}
+
+button:hover {
+  background-color: rgba(0, 0, 0, 0.05);  /* 半透明悬停效果 */
+  color: #333;  /* 悬停时提高对比度 */
+}
+
+.dark-mode button:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #c9d1d9;
+}
+
+/* 修改按钮激活状态 */
+button:active {
+  transform: translateY(1px);  /* 轻微下沉效果 */
+}
+
+/* 修改修改状态样式，使其更加微妙 */
+button.modified {
+  color: #e53935;
+  font-weight: normal;  /* 移除粗体 */
+  border-color: rgba(229, 57, 53, 0.3);  /* 淡化边框颜色 */
+}
+
+.dark-mode button.modified {
+  color: #f44336;
+  border-color: rgba(244, 67, 54, 0.3);
+}
+
+/* 修改下拉箭头样式 */
+#theme-btn::after {
+  content: " ▼";
+  font-size: 8px;
+  margin-left: 3px;
+  opacity: 0.7;
+  vertical-align: middle;  /* 确保箭头垂直居中 */
+}
+
+/* 工具栏样式调整 */
+.toolbar {
+  display: flex;
+  padding: 8px 10px;  /* 减小工具栏内边距 */
+  background-color: rgba(240, 240, 240, 0.8);  /* 半透明背景 */
+  border-bottom: 1px solid rgba(221, 221, 221, 0.5);  /* 淡化边框 */
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.dark-mode .toolbar {
+  background-color: rgba(22, 27, 34, 0.8);
+  border-bottom: 1px solid rgba(48, 54, 61, 0.5);
+}
+
+.dark-mode button {
+  background-color: #21262d;
+  border: 1px solid #30363d;
+  color: #c9d1d9;
+}
+
+button:hover {
+  background-color: #f5f5f5;
+}
+
+.dark-mode button:hover {
+  background-color: #30363d;
+}
+
+.container {
+  display: flex;
+  flex: 1;
+  overflow: hidden; /* 防止容器本身滚动 */
+  position: relative; /* 为子元素的绝对定位提供参考 */
+}
+
+.editor-container, .preview-container {
+  height: 100%;
+  overflow: auto; /* 只允许编辑器和预览区域内部滚动 */
+  padding: 10px;
+}
+
+.editor-container {
+  width: 50%;
+}
+
+.preview-container {
+  width: 50%;
+}
+
+.resizer {
+  width: 8px;  /* 增加宽度使其更容易点击 */
+  background-color: #ddd;
+  cursor: col-resize;
+  height: 100%;
+  z-index: 10;
+  flex-shrink: 0;  /* 防止分隔条被压缩 */
+}
+
+.dark-mode .resizer {
+  background-color: #30363d;
+}
+
+.resizer:hover {
+  background-color: #aaa;
+}
+
+.dark-mode .resizer:hover {
+  background-color: #58a6ff;
+}
+
+.resizer:hover, .resizer.active {
+  background-color: #aaa;
+}
+
+.dark-mode .resizer:hover, .dark-mode .resizer.active {
+  background-color: #58a6ff;
+}
+
+.dark-mode .editor-container {
+  border-right: 1px solid #30363d;
+}
+
+#editor {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 10px;
+  background-color: #fff;
+}
+
+.dark-mode #editor {
+  background-color: #0d1117;
+  color: #c9d1d9;
+}
+
+.preview-container {
+  background-color: #fff;
+  padding: 20px;
+}
+
+.dark-mode .preview-container {
+  background-color: #0d1117;
+}
+
+/* 主题下拉菜单 */
+.theme-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.theme-content {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 100;
+  border-radius: 4px;
+  margin-top: 5px;
+}
+
+.dark-mode .theme-content {
+  background-color: #21262d;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+}
+
+.theme-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+.dark-mode .theme-content a {
+  color: #c9d1d9;
+}
+
+.theme-content a:hover {
+  background-color: #f1f1f1;
+  border-radius: 4px;
+}
+
+.dark-mode .theme-content a:hover {
+  background-color: #30363d;
+}
+
+.show {
+  display: block;
+}
+
+/* 添加下拉箭头 */
+#theme-btn::after {
+  content: " ▼";
+  font-size: 10px;
+  margin-left: 5px;
+}
+
+
+/* 添加修改状态样式 */
+button.modified {
+  color: #e53935;
+  font-weight: bold;
+}
+
+.dark-mode button.modified {
+  color: #f44336;
+}
+
+
+/* CodeMirror编辑器样式 */
+.editor-container .CodeMirror {
+  height: 100%;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* 标题样式 */
+.cm-header-1 {
+  font-size: 1.6em;
+  font-weight: bold;
+}
+
+.cm-header-2 {
+  font-size: 1.4em;
+  font-weight: bold;
+}
+
+.cm-header-3 {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+/* 强调样式 */
+.cm-em {
+  font-style: italic;
+}
+
+.cm-strong {
+  font-weight: bold;
+}
+
+/* 链接样式 */
+.cm-url, .cm-link {
+  color: #0366d6;
+  text-decoration: underline;
+}
+
+/* 代码样式 */
+.cm-comment, .cm-code {
+  font-family: monospace;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0 2px;
+  border-radius: 3px;
+}
+
+.dark-mode .cm-comment, .dark-mode .cm-code {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* 行号样式 */
+.CodeMirror-linenumber {
+  color: #999;
+  padding: 0 8px;
+}
+
+.dark-mode .CodeMirror-linenumber {
+  color: #666;
+}
