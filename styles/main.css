@@ -329,3 +329,51 @@ button.modified {
 .dark-mode .CodeMirror-linenumber {
   color: #666;
 }
+
+
+/* TOC 样式 */
+.markdown-toc {
+  background-color: #f8f8f8;
+  border: 1px solid #e8e8e8;
+  border-radius: 3px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.dark-mode .markdown-toc {
+  background-color: #21262d;
+  border-color: #30363d;
+}
+
+.markdown-toc h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.2em;
+}
+
+.markdown-toc ul {
+  list-style-type: none;
+  padding-left: 20px;
+  margin: 0;
+}
+
+.markdown-toc > ul {
+  padding-left: 0;
+}
+
+.markdown-toc li {
+  margin: 5px 0;
+}
+
+.markdown-toc a {
+  color: #0366d6;
+  text-decoration: none;
+}
+
+.markdown-toc a:hover {
+  text-decoration: underline;
+}
+
+.dark-mode .markdown-toc a {
+  color: #58a6ff;
+}
