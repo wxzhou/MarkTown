@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>MarkTown</title>
+  <!-- 引入CodeMirror -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.3/lib/codemirror.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.3/theme/default.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.3/theme/dracula.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.3/theme/solarized.css">
+  <link rel="stylesheet" href="styles/main.css">
+  <link id="theme-style" rel="stylesheet" href="styles/github-light.css">
+</head>
+<body>
+  <div class="toolbar">
+    <button id="open-btn">打开</button>
+    <button id="save-btn">保存</button>
+    <div class="theme-dropdown">
+      <button id="theme-btn">GitHub Light</button>
+      <div class="theme-content">
+        <a href="#" data-theme="github-light">GitHub Light</a>
+        <a href="#" data-theme="github-dark">GitHub Dark</a>
+        <a href="#" data-theme="solarized-light">Solarized Light</a>
+        <a href="#" data-theme="solarized-dark">Solarized Dark</a>
+        <a href="#" data-theme="dracula">Dracula</a>
+      </div>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="editor-container">
+      <!-- 将textarea替换为div -->
+      <div id="editor-wrapper"></div>
+    </div>
+    <div class="resizer" id="resizer"></div>
+    <div class="preview-container">
+      <div id="preview" class="markdown-body"></div>
+    </div>
+  </div>
+
+  <!-- 引入CodeMirror脚本 -->
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.3/lib/codemirror.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.3/mode/markdown/markdown.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.3/addon/edit/continuelist.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>
