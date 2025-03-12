@@ -135,6 +135,9 @@ window.onload = function() {
     };
     themeBtn.textContent = themeNames[theme] || theme;
     
+    // 设置 body 的 data-theme 属性，用于特定主题的 CSS 选择器
+    document.body.setAttribute('data-theme', theme);
+    
     // 更新CodeMirror主题
     if (theme === 'github-dark' || theme === 'dracula') {
       cmEditor.setOption('theme', 'dracula');

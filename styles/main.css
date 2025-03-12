@@ -277,6 +277,17 @@ button.modified {
   line-height: 1.5;
 }
 
+/* 添加 Solarized Light 主题下的编辑器背景色 */
+body[data-theme="solarized-light"] .CodeMirror {
+  background-color: #fdf6e3 !important; /* Solarized Light 背景色 */
+  color: #657b83 !important; /* Solarized Light 文本色 */
+}
+
+body[data-theme="solarized-light"] .CodeMirror-gutters {
+  background-color: #eee8d5 !important; /* 稍深一点的背景色用于行号区域 */
+  border-right: 1px solid #ddd6c1 !important;
+}
+
 /* 标题样式 */
 .cm-header-1 {
   font-size: 1.6em;

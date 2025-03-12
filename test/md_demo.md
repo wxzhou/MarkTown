@@ -1,5 +1,6 @@
 # Markdown Syntax Guide
 [TOC]
+
 ## Basic Syntax
 
 ### Headings
