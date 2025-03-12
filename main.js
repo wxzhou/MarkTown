@@ -1,38 +1,52 @@
-// 将任何 import 语句替换为 require
-// 例如：将 import { app, BrowserWindow } from 'electron'; 
-// 替换为：
-// 确保引入了 Menu 模块
 const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const Store = require('electron-store');
 
-// 创建 store 实例
+// 创建配置存储
 const store = new Store();
 
-// 声明一个全局变量来存储主窗口引用
 let mainWindow;
 
 function createWindow() {
-  // 创建浏览器窗口
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      nodeIntegration: false,
-      contextIsolation: true
+      contextIsolation: true,
+      nodeIntegration: false
     }
   });
 
-  // 加载index.html
   mainWindow.loadFile('index.html');
   
-  // 开发时可以打开开发者工具
-  // mainWindow.webContents.openDevTools();
+  // 创建应用菜单
+  createApplicationMenu();
+}
 
-  // 创建应用菜单，添加快捷键
+// 创建应用菜单
+function createApplicationMenu() {
+  const isMac = process.platform === 'darwin';
+  
   const template = [
+    // 应用菜单（仅在macOS上显示）
+    ...(isMac ? [{
+      label: app.name,
+      submenu: [
+        { role: 'about' },
+        { type: 'separator' },
+        { role: 'services' },
+        { type: 'separator' },
+        { role: 'hide' },
+        { role: 'hideOthers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { role: 'quit' }
+      ]
+    }] : []),
+    
+    // 文件菜单
     {
       label: '文件',
       submenu: [
@@ -40,39 +54,103 @@ function createWindow() {
           label: '打开',
           accelerator: 'CmdOrCtrl+O',
           click: () => {
-            if (mainWindow) {
-              mainWindow.webContents.send('menu-open-file');
-            }
+            mainWindow.webContents.send('menu-open-file');
           }
         },
         {
           label: '保存',
           accelerator: 'CmdOrCtrl+S',
           click: () => {
-            if (mainWindow) {
-              mainWindow.webContents.send('menu-save-file');
-            }
+            mainWindow.webContents.send('menu-save-file');
           }
         },
         { type: 'separator' },
-        { role: 'quit', label: '退出' }
+        isMac ? { role: 'close' } : { role: 'quit' }
       ]
     },
+    
+    // 编辑菜单
     {
       label: '编辑',
       submenu: [
-        { role: 'undo', label: '撤销' },
-        { role: 'redo', label: '重做' },
+        { role: 'undo' },
+        { role: 'redo' },
         { type: 'separator' },
-        { role: 'cut', label: '剪切' },
-        { role: 'copy', label: '复制' },
-        { role: 'paste', label: '粘贴' },
-        { role: 'delete', label: '删除' },
-        { role: 'selectAll', label: '全选' }
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'delete' },
+        { type: 'separator' },
+        { role: 'selectAll' }
+      ]
+    },
+    
+    // 风格菜单
+    {
+      label: '风格',
+      submenu: [
+        {
+          label: 'GitHub Light',
+          type: 'radio',
+          checked: store.get('theme') === 'github-light',
+          click: () => {
+            mainWindow.webContents.send('set-theme', 'github-light');
+          }
+        },
+        {
+          label: 'GitHub Dark',
+          type: 'radio',
+          checked: store.get('theme') === 'github-dark',
+          click: () => {
+            mainWindow.webContents.send('set-theme', 'github-dark');
+          }
+        },
+        {
+          label: 'Solarized Light',
+          type: 'radio',
+          checked: store.get('theme') === 'solarized-light',
+          click: () => {
+            mainWindow.webContents.send('set-theme', 'solarized-light');
+          }
+        },
+        {
+          label: 'Solarized Dark',
+          type: 'radio',
+          checked: store.get('theme') === 'solarized-dark',
+          click: () => {
+            mainWindow.webContents.send('set-theme', 'solarized-dark');
+          }
+        },
+        {
+          label: 'Dracula',
+          type: 'radio',
+          checked: store.get('theme') === 'dracula',
+          click: () => {
+            mainWindow.webContents.send('set-theme', 'dracula');
+          }
+        }
+      ]
+    },
+    
+    // 开发者菜单（仅在开发模式下显示）
+    {
+      label: '开发',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        {
+          label: '重置设置',
+          click: () => {
+            store.clear();
+            mainWindow.webContents.reload();
+          }
+        }
       ]
     }
   ];
-
+  
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
 }

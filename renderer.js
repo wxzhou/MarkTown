@@ -54,11 +54,7 @@ window.onload = function() {
   });
   
   const preview = document.getElementById('preview');
-  const openBtn = document.getElementById('open-btn');
-  const saveBtn = document.getElementById('save-btn');
-  const themeBtn = document.getElementById('theme-btn');
-  const themeContent = document.querySelector('.theme-content');
-  const themeLinks = document.querySelectorAll('.theme-content a');
+  // 移除顶部按钮引用
   const themeStyle = document.getElementById('theme-style');
   
   // 添加文件内容跟踪
@@ -125,16 +121,6 @@ window.onload = function() {
     currentTheme = theme;
     themeStyle.href = `styles/${theme}.css`;
     
-    // 更新主题按钮文本为当前主题名称
-    const themeNames = {
-      'github-light': 'GitHub Light',
-      'github-dark': 'GitHub Dark',
-      'solarized-light': 'Solarized Light',
-      'solarized-dark': 'Solarized Dark',
-      'dracula': 'Dracula'
-    };
-    themeBtn.textContent = themeNames[theme] || theme;
-    
     // 设置 body 的 data-theme 属性，用于特定主题的 CSS 选择器
     document.body.setAttribute('data-theme', theme);
     
@@ -163,25 +149,14 @@ window.onload = function() {
     window.electronAPI.saveTheme(theme);
   }
   
-  // 设置文件修改状态
-  function setModifiedState(modified) {
-    if (isFileModified !== modified) {
-      isFileModified = modified;
-      if (modified) {
-        saveBtn.textContent = "*保存";
-        saveBtn.classList.add('modified');
-      } else {
-        saveBtn.textContent = "保存";
-        saveBtn.classList.remove('modified');
-      }
-    }
-  }
+  // 移除文件修改状态相关函数
   
-  // 检查文件是否被修改
+  // 检查文件是否被修改 - 保留此函数但不再更新UI
   function checkFileModified() {
     if (currentFilePath) {
       const currentContent = cmEditor.getValue();
-      setModifiedState(currentContent !== originalContent);
+      isFileModified = (currentContent !== originalContent);
+      // 不再更新保存按钮UI
     }
   }
   
@@ -363,7 +338,7 @@ window.onload = function() {
       cmEditor.setValue(result.content);
       currentFilePath = result.filePath;
       originalContent = result.content;
-      setModifiedState(false);
+      isFileModified = false;
     }
   }
   
@@ -375,7 +350,7 @@ window.onload = function() {
     if (result.success) {
       currentFilePath = result.filePath;
       originalContent = content;
-      setModifiedState(false);
+      isFileModified = false;
       console.log('文件已保存:', result.filePath);
     } else if (result.error) {
       console.error('保存失败:', result.error);
@@ -388,34 +363,7 @@ window.onload = function() {
     checkFileModified();
   });
   
-  // 打开按钮点击事件
-  openBtn.addEventListener('click', openFile);
-  
-  // 保存按钮点击事件
-  saveBtn.addEventListener('click', saveFile);
-  
-  // 主题按钮点击事件
-  themeBtn.addEventListener('click', (e) => {
-    e.stopPropagation(); // 阻止事件冒泡
-    themeContent.classList.toggle('show');
-  });
-  
-  // 点击其他地方关闭主题下拉菜单
-  document.addEventListener('click', (event) => {
-    if (!themeBtn.contains(event.target)) {
-      themeContent.classList.remove('show');
-    }
-  });
-  
-  // 主题选择
-  themeLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const theme = e.target.getAttribute('data-theme');
-      setTheme(theme);
-      themeContent.classList.remove('show');
-    });
-  });
+  // 移除顶部按钮事件监听
   
   // 监听来自主进程的菜单事件
   window.electronAPI.onMenuOpenFile(() => {
