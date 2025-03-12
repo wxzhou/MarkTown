@@ -197,24 +197,42 @@ ipcMain.handle('open-file', async () => {
 });
 
 // 保存文件
+// 处理保存文件请求
 ipcMain.handle('save-file', async (event, content) => {
-  if (!currentFilePath) {
-    const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
-      filters: [
-        { name: 'Markdown Files', extensions: ['md', 'markdown'] }
-      ]
-    });
-    
-    if (canceled) return { canceled: true };
-    currentFilePath = filePath;
-  }
-  
   try {
-    fs.writeFileSync(currentFilePath, content, 'utf8');
-    return { success: true, filePath: currentFilePath };
-  } catch (err) {
-    console.error('保存文件失败:', err);
-    return { error: '保存文件失败' };
+    // 获取当前文件路径（如果有）
+    const currentFilePath = store.get('currentFilePath');
+    
+    // 如果没有当前文件路径，则弹出保存对话框
+    if (!currentFilePath) {
+      const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
+        title: '保存文件',
+        defaultPath: path.join(app.getPath('documents'), 'untitled.md'),
+        filters: [
+          { name: 'Markdown', extensions: ['md'] },
+          { name: '所有文件', extensions: ['*'] }
+        ]
+      });
+      
+      if (canceled) {
+        return { success: false, canceled: true };
+      }
+      
+      // 保存文件
+      fs.writeFileSync(filePath, content, 'utf8');
+      
+      // 更新当前文件路径
+      store.set('currentFilePath', filePath);
+      
+      return { success: true, filePath };
+    } else {
+      // 有当前文件路径，直接保存
+      fs.writeFileSync(currentFilePath, content, 'utf8');
+      return { success: true, filePath: currentFilePath };
+    }
+  } catch (error) {
+    console.error('保存文件时出错:', error);
+    return { success: false, error: error.message };
   }
 });
 

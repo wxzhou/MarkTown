@@ -352,6 +352,8 @@ window.onload = function() {
       originalContent = content;
       isFileModified = false;
       console.log('文件已保存:', result.filePath);
+    } else if (result.canceled) {
+      console.log('用户取消了保存操作');
     } else if (result.error) {
       console.error('保存失败:', result.error);
     }
