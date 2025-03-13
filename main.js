@@ -262,6 +262,11 @@ ipcMain.on('save-theme', (event, theme) => {
   store.set('theme', theme);
 });
 
+// 获取主题设置
+ipcMain.handle('get-theme', () => {
+  return store.get('theme', 'github-light');
+});
+
 app.whenReady().then(() => {
   createWindow();
   

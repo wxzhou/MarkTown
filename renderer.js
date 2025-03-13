@@ -1,14 +1,14 @@
-// 引入marked库
+// 加载marked库
 const markedScript = document.createElement('script');
-markedScript.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+markedScript.src = 'https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js';
 document.head.appendChild(markedScript);
 
-// 引入highlight.js
+// 加载highlight.js
 const hlScript = document.createElement('script');
 hlScript.src = 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js';
 document.head.appendChild(hlScript);
 
-// 引入highlight.js样式表 - 使用与当前主题匹配的样式
+// 加载highlight.js样式
 const hlCss = document.createElement('link');
 hlCss.rel = 'stylesheet';
 hlCss.href = 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css';
@@ -130,16 +130,27 @@ window.onload = function() {
     const editorWrapper = document.getElementById('editor-wrapper');
     editorWrapper.innerHTML = '';
     
+    // 获取当前主题对应的CodeMirror主题
+    const theme = document.body.getAttribute('data-theme') || 'github-light';
+    let cmTheme = 'default';
+    if (theme === 'github-dark' || theme === 'dracula') {
+      cmTheme = 'dracula';
+    } else if (theme === 'solarized-light') {
+      cmTheme = 'solarized';
+    } else if (theme === 'solarized-dark') {
+      cmTheme = 'solarized dark';
+    }
+    
     // 重新创建编辑器实例，确保内容正确显示
     currentEditor.editor = CodeMirror(editorWrapper, {
       mode: 'markdown',
       lineNumbers: true,
       lineWrapping: true,
-      theme: getCurrentTheme(),
+      theme: cmTheme,
       extraKeys: {"Enter": "newlineAndIndentContinueMarkdownList"},
       styleActiveLine: true,
       placeholder: "在此输入Markdown内容...",
-      value: currentEditor.content // 直接在创建时设置内容
+      value: currentEditor.content
     });
     
     // 添加变化监听
@@ -160,6 +171,7 @@ window.onload = function() {
     if (editors.length <= 1) {
       // 至少保留一个标签
       createNewTab();
+      return;
     }
     
     // 移除标签元素
@@ -214,21 +226,6 @@ window.onload = function() {
     }
     
     tabTitle.textContent = fileName;
-  }
-  
-  // 获取当前主题
-  function getCurrentTheme() {
-    const theme = document.body.getAttribute('data-theme') || 'github-light';
-    
-    if (theme === 'github-dark' || theme === 'dracula') {
-      return 'dracula';
-    } else if (theme === 'solarized-light') {
-      return 'solarized';
-    } else if (theme === 'solarized-dark') {
-      return 'solarized dark';
-    } else {
-      return 'default';
-    }
   }
   
   // 检查文件是否被修改
@@ -320,15 +317,13 @@ window.onload = function() {
         highlight: function(code, lang) {
           if (window.hljs && lang && hljs.getLanguage(lang)) {
             try {
-              console.log(`尝试高亮 ${lang} 代码`);
               return hljs.highlight(lang, code).value;
             } catch (e) {
-              console.error('高亮错误:', e);
               try {
                 // 尝试新版API
                 return hljs.highlight(code, { language: lang }).value;
               } catch (e2) {
-                console.error('新版API高亮错误:', e2);
+                console.error('高亮错误:', e2);
               }
             }
           }
@@ -377,7 +372,6 @@ window.onload = function() {
       
       // 渲染数学公式
       if (typeof window.renderMathInElement === 'function') {
-        console.log('尝试渲染数学公式');
         window.renderMathInElement(preview, {
           delimiters: [
             {left: "$$", right: "$$", display: true},
@@ -386,31 +380,55 @@ window.onload = function() {
             {left: "\\(", right: "\\)", display: false}
           ],
           throwOnError: false,
-          output: 'html'  // 使用HTML输出
+          output: 'html'
         });
-      } else {
-        console.warn('renderMathInElement 函数不可用，等待加载...');
-        // 如果KaTeX尚未加载，设置一个检查器
-        let checkCount = 0;
-        const checkInterval = setInterval(() => {
-          checkCount++;
-          if (typeof window.renderMathInElement === 'function') {
-            console.log('KaTeX 现在可用，渲染数学公式');
-            window.renderMathInElement(preview, {
-              delimiters: [
-                {left: "$$", right: "$$", display: true},
-                {left: "$", right: "$", display: false}
-              ],
-              throwOnError: false
-            });
-            clearInterval(checkInterval);
-          } else if (checkCount > 20) {
-            console.error('KaTeX 加载超时');
-            clearInterval(checkInterval);
-          }
-        }, 200);
       }
     }
+  }
+  
+  // 设置主题
+  function setTheme(theme) {
+    console.log('设置主题:', theme);
+    
+    // 更新主题样式表
+    const themeStyle = document.getElementById('theme-style');
+    if (themeStyle) {
+      themeStyle.href = `styles/${theme}.css`;
+    }
+    
+    // 设置 body 的 data-theme 属
+    document.body.setAttribute('data-theme', theme);
+    
+    // 更新高亮样式
+    const hlStyle = document.getElementById('highlight-style');
+    if (hlStyle) {
+      if (theme === 'github-dark' || theme === 'solarized-dark' || theme === 'dracula') {
+        hlStyle.href = 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css';
+        document.body.classList.add('dark-mode');
+      } else {
+        hlStyle.href = 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css';
+        document.body.classList.remove('dark-mode');
+      }
+    }
+    
+    // 更新当前活动编辑器的主题
+    if (activeTabIndex >= 0 && activeTabIndex < editors.length) {
+      const activeEditor = editors[activeTabIndex];
+      if (activeEditor && activeEditor.editor) {
+        let cmTheme = 'default';
+        if (theme === 'github-dark' || theme === 'dracula') {
+          cmTheme = 'dracula';
+        } else if (theme === 'solarized-light') {
+          cmTheme = 'solarized';
+        } else if (theme === 'solarized-dark') {
+          cmTheme = 'solarized dark';
+        }
+        activeEditor.editor.setOption('theme', cmTheme);
+      }
+    }
+    
+    // 保存主题设置
+    window.electronAPI.saveTheme(theme);
   }
   
   // 打开文件函数
@@ -447,27 +465,6 @@ window.onload = function() {
       console.error('保存失败:', result.error);
     }
   }
-  
-  // 监听来自主进程的菜单事件
-  window.electronAPI.onMenuNewFile(() => {
-    console.log('收到新建文件菜单事件');
-    createNewTab();
-  });
-  
-  window.electronAPI.onMenuOpenFile(() => {
-    console.log('收到打开文件菜单事件');
-    openFile();
-  });
-  
-  window.electronAPI.onMenuSaveFile(() => {
-    console.log('收到保存文件菜单事件');
-    saveFile();
-  });
-  
-  window.electronAPI.onMenuSaveAsFile(() => {
-    console.log('收到另存为菜单事件');
-    saveFileAs();
-  });
   
   // 另存为函数
   async function saveFileAs() {
@@ -510,4 +507,43 @@ window.onload = function() {
   previewContainer.style.width = '50%';
   editorContainer.style.flex = '0 0 auto';
   previewContainer.style.flex = '0 0 auto';
+  
+  // 监听主题设置事件
+  window.electronAPI.onSetTheme((theme) => {
+    console.log('收到主题设置事件:', theme);
+    setTheme(theme);
+  });
+  
+  // 监听菜单事件
+  window.electronAPI.onMenuNewFile(() => {
+    console.log('收到新建文件菜单事件');
+    createNewTab();
+  });
+  
+  window.electronAPI.onMenuOpenFile(() => {
+    console.log('收到打开文件菜单事件');
+    openFile();
+  });
+  
+  window.electronAPI.onMenuSaveFile(() => {
+    console.log('收到保存文件菜单事件');
+    saveFile();
+  });
+  
+  window.electronAPI.onMenuSaveAsFile(() => {
+    console.log('收到另存为菜单事件');
+    saveFileAs();
+  });
+  
+  // 加载保存的主题
+  window.electronAPI.getTheme()
+    .then(savedTheme => {
+      console.log('加载保存的主题:', savedTheme);
+      if (savedTheme) {
+        setTheme(savedTheme);
+      }
+    })
+    .catch(err => {
+      console.error('加载主题出错:', err);
+    });
 };

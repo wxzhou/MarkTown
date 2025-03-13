@@ -14,6 +14,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // 保存主题设置
   saveTheme: (theme) => ipcRenderer.send('save-theme', theme),
   
+  // 获取保存的主题
+  getTheme: () => ipcRenderer.invoke('get-theme'),
+  
   // 监听主题设置
   onSetTheme: (callback) => ipcRenderer.on('set-theme', (_, theme) => callback(theme)),
   
