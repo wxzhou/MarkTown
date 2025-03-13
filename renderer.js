@@ -345,7 +345,7 @@ window.onload = function() {
   // 保存文件函数
   async function saveFile() {
     const content = cmEditor.getValue();
-    const result = await window.electronAPI.saveFile(content);
+    const result = await window.electronAPI.saveFile(content, currentFilePath);
     
     if (result.success) {
       currentFilePath = result.filePath;

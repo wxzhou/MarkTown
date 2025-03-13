@@ -23,6 +23,9 @@ function createWindow() {
   
   // 创建应用菜单
   createApplicationMenu();
+  
+  // 每次启动应用时重置当前文件路径
+  store.delete('currentFilePath');
 }
 
 // 创建应用菜单
@@ -198,11 +201,8 @@ ipcMain.handle('open-file', async () => {
 
 // 保存文件
 // 处理保存文件请求
-ipcMain.handle('save-file', async (event, content) => {
+ipcMain.handle('save-file', async (event, content, currentFilePath) => {
   try {
-    // 获取当前文件路径（如果有）
-    const currentFilePath = store.get('currentFilePath');
-    
     // 如果没有当前文件路径，则弹出保存对话框
     if (!currentFilePath) {
       const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
@@ -220,9 +220,6 @@ ipcMain.handle('save-file', async (event, content) => {
       
       // 保存文件
       fs.writeFileSync(filePath, content, 'utf8');
-      
-      // 更新当前文件路径
-      store.set('currentFilePath', filePath);
       
       return { success: true, filePath };
     } else {

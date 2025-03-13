@@ -6,7 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openFile: () => ipcRenderer.invoke('open-file'),
   
   // 保存文件
-  saveFile: (content) => ipcRenderer.invoke('save-file', content),
+  saveFile: (content, currentFilePath) => ipcRenderer.invoke('save-file', content, currentFilePath),
   
   // 保存主题设置
   saveTheme: (theme) => ipcRenderer.send('save-theme', theme),
