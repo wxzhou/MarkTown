@@ -388,3 +388,92 @@ body[data-theme="solarized-light"] .CodeMirror-gutters {
 .dark-mode .markdown-toc a {
   color: #58a6ff;
 }
+
+/* 标签栏样式 */
+.tabs-container {
+  display: flex;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #ddd;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.dark-mode .tabs-container {
+  background-color: #161b22;
+  border-bottom: 1px solid #30363d;
+}
+
+.tabs {
+  display: flex;
+  flex-grow: 1;
+}
+
+.tab {
+  padding: 8px 15px;
+  background-color: #e0e0e0;
+  border-right: 1px solid #ccc;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  max-width: 200px;
+  min-width: 100px;
+}
+
+.dark-mode .tab {
+  background-color: #21262d;
+  border-right: 1px solid #30363d;
+  color: #c9d1d9;
+}
+
+.tab.active {
+  background-color: #fff;
+  border-bottom: 2px solid #0366d6;
+}
+
+.dark-mode .tab.active {
+  background-color: #0d1117;
+  border-bottom: 2px solid #58a6ff;
+}
+
+.tab-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-grow: 1;
+}
+
+.tab-close {
+  margin-left: 8px;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  line-height: 14px;
+  border-radius: 50%;
+  font-size: 12px;
+}
+
+.tab-close:hover {
+  background-color: #ccc;
+}
+
+.dark-mode .tab-close:hover {
+  background-color: #444;
+}
+
+.new-tab-btn {
+  padding: 8px 12px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.new-tab-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .new-tab-btn:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}

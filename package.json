@@ -1,6 +1,6 @@
 {
   "name": "marktown",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "跨平台的Markdown编辑器",
   "main": "main.js",
   "scripts": {

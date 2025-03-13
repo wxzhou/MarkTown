@@ -8,6 +8,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // 保存文件
   saveFile: (content, currentFilePath) => ipcRenderer.invoke('save-file', content, currentFilePath),
   
+  // 另存为
+  saveFileAs: (content) => ipcRenderer.invoke('save-file-as', content),
+  
   // 保存主题设置
   saveTheme: (theme) => ipcRenderer.send('save-theme', theme),
   
@@ -15,6 +18,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onSetTheme: (callback) => ipcRenderer.on('set-theme', (_, theme) => callback(theme)),
   
   // 监听菜单事件
+  onMenuNewFile: (callback) => ipcRenderer.on('menu-new-file', () => callback()),
   onMenuOpenFile: (callback) => ipcRenderer.on('menu-open-file', () => callback()),
-  onMenuSaveFile: (callback) => ipcRenderer.on('menu-save-file', () => callback())
+  onMenuSaveFile: (callback) => ipcRenderer.on('menu-save-file', () => callback()),
+  onMenuSaveAsFile: (callback) => ipcRenderer.on('menu-save-as-file', () => callback())
 });

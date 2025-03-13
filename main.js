@@ -54,6 +54,13 @@ function createApplicationMenu() {
       label: '文件',
       submenu: [
         {
+          label: '新建',
+          accelerator: 'CmdOrCtrl+N',
+          click: () => {
+            mainWindow.webContents.send('menu-new-file');
+          }
+        },
+        {
           label: '打开',
           accelerator: 'CmdOrCtrl+O',
           click: () => {
@@ -65,6 +72,13 @@ function createApplicationMenu() {
           accelerator: 'CmdOrCtrl+S',
           click: () => {
             mainWindow.webContents.send('menu-save-file');
+          }
+        },
+        {
+          label: '另存为',
+          accelerator: 'CmdOrCtrl+Shift+S',
+          click: () => {
+            mainWindow.webContents.send('menu-save-as-file');
           }
         },
         { type: 'separator' },
@@ -158,48 +172,32 @@ function createApplicationMenu() {
   Menu.setApplicationMenu(menu);
 }
 
-app.whenReady().then(() => {
-  createWindow();
-
-  app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
-  
-  // 恢复上次的主题设置
-  const lastTheme = store.get('theme', 'github-light');
-  mainWindow.webContents.on('did-finish-load', () => {
-    mainWindow.webContents.send('set-theme', lastTheme);
-  });
-});
-
-app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') app.quit();
-});
-
-// 打开文件
+// 处理打开文件请求
 ipcMain.handle('open-file', async () => {
-  const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
-    properties: ['openFile'],
-    filters: [
-      { name: 'Markdown Files', extensions: ['md', 'markdown'] }
-    ]
-  });
-  
-  if (!canceled && filePaths.length > 0) {
-    currentFilePath = filePaths[0];
-    try {
-      const content = fs.readFileSync(currentFilePath, 'utf8');
-      return { filePath: currentFilePath, content };
-    } catch (err) {
-      console.error('读取文件失败:', err);
-      return { error: '读取文件失败' };
+  try {
+    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+      title: '打开文件',
+      filters: [
+        { name: 'Markdown', extensions: ['md'] },
+        { name: '所有文件', extensions: ['*'] }
+      ],
+      properties: ['openFile']
+    });
+    
+    if (canceled || filePaths.length === 0) {
+      return { canceled: true };
     }
+    
+    const filePath = filePaths[0];
+    const content = fs.readFileSync(filePath, 'utf8');
+    
+    return { canceled: false, filePath, content };
+  } catch (error) {
+    console.error('打开文件时出错:', error);
+    return { canceled: false, error: error.message };
   }
-  
-  return { canceled: true };
 });
 
-// 保存文件
 // 处理保存文件请求
 ipcMain.handle('save-file', async (event, content, currentFilePath) => {
   try {
@@ -233,11 +231,45 @@ ipcMain.handle('save-file', async (event, content, currentFilePath) => {
   }
 });
 
-// 保存主题设置
-ipcMain.handle('save-theme', async (event, theme) => {
-  store.set('theme', theme);
-  return { success: true };
+// 处理另存为请求
+ipcMain.handle('save-file-as', async (event, content) => {
+  try {
+    const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
+      title: '另存为',
+      defaultPath: path.join(app.getPath('documents'), 'untitled.md'),
+      filters: [
+        { name: 'Markdown', extensions: ['md'] },
+        { name: '所有文件', extensions: ['*'] }
+      ]
+    });
+    
+    if (canceled) {
+      return { success: false, canceled: true };
+    }
+    
+    // 保存文件
+    fs.writeFileSync(filePath, content, 'utf8');
+    
+    return { success: true, filePath };
+  } catch (error) {
+    console.error('另存为时出错:', error);
+    return { success: false, error: error.message };
+  }
 });
 
-// 确保没有使用 export default 或 export const
-// 使用 module.exports 代替
+// 保存主题设置
+ipcMain.on('save-theme', (event, theme) => {
+  store.set('theme', theme);
+});
+
+app.whenReady().then(() => {
+  createWindow();
+  
+  app.on('activate', function () {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
+
+app.on('window-all-closed', function () {
+  if (process.platform !== 'darwin') app.quit();
+});

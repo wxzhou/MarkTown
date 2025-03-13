@@ -41,128 +41,210 @@ window.initKaTeX = function() {
 
 // 等待库加载完成
 window.onload = function() {
-  // 初始化CodeMirror编辑器
-  const editorWrapper = document.getElementById('editor-wrapper');
-  const cmEditor = CodeMirror(editorWrapper, {
-    mode: 'markdown',
-    lineNumbers: true,
-    lineWrapping: true,
-    theme: 'default',
-    extraKeys: {"Enter": "newlineAndIndentContinueMarkdownList"},
-    styleActiveLine: true,
-    placeholder: "在此输入Markdown内容...",
-  });
+  // 标签页管理
+  const tabsContainer = document.getElementById('tabs');
+  const newTabBtn = document.getElementById('new-tab-btn');
   
-  const preview = document.getElementById('preview');
-  // 移除顶部按钮引用
-  const themeStyle = document.getElementById('theme-style');
+  // 编辑器和文件状态数组
+  const editors = [];
+  let activeTabIndex = -1;
   
-  // 添加文件内容跟踪
-  let originalContent = '';
-  let isFileModified = false;
-  let currentFilePath = null;
-  
-  // 添加分隔条拖动功能
-  const resizer = document.getElementById('resizer');
-  const container = document.querySelector('.container');
-  const editorContainer = document.querySelector('.editor-container');
-  const previewContainer = document.querySelector('.preview-container');
-  
-  // 简化的拖动处理
-  let isResizing = false;
-  
-  resizer.addEventListener('mousedown', function(e) {
-    // 阻止默认行为和文本选择
-    e.preventDefault();
-    isResizing = true;
+  // 创建新标签页
+  function createNewTab(filePath = null, content = '') {
+    const tabIndex = editors.length;
     
-    // 添加活动状态样式
-    resizer.classList.add('active');
-    document.body.style.cursor = 'col-resize';
-  });
-  
-  document.addEventListener('mousemove', function(e) {
-    if (!isResizing) return;
+    // 创建标签元素
+    const tab = document.createElement('div');
+    tab.className = 'tab';
+    tab.dataset.index = tabIndex;
     
-    // 获取容器位置信息
-    const containerRect = container.getBoundingClientRect();
+    // 获取文件名
+    const fileName = filePath ? filePath.split('/').pop() : '未命名';
     
-    // 计算鼠标在容器内的相对位置
-    const mouseX = e.clientX - containerRect.left;
+    // 创建标签标题
+    const tabTitle = document.createElement('div');
+    tabTitle.className = 'tab-title';
+    tabTitle.textContent = fileName;
+    tab.appendChild(tabTitle);
     
-    // 计算百分比位置（限制在20%-80%之间）
-    const percentage = Math.min(Math.max(
-      (mouseX / containerRect.width) * 100, 
-      20
-    ), 80);
+    // 创建关闭按钮
+    const closeBtn = document.createElement('div');
+    closeBtn.className = 'tab-close';
+    closeBtn.innerHTML = '&times;';
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeTab(tabIndex);
+    });
+    tab.appendChild(closeBtn);
     
-    // 设置编辑器和预览区的宽度
-    editorContainer.style.width = percentage + '%';
-    previewContainer.style.width = (100 - percentage) + '%';
-  });
-  
-  document.addEventListener('mouseup', function() {
-    if (isResizing) {
-      isResizing = false;
-      resizer.classList.remove('active');
-      document.body.style.cursor = '';
-    }
-  });
-  
-  let currentTheme = 'github-light';
-  
-  // 监听主题设置
-  window.electronAPI.onSetTheme((theme) => {
-    setTheme(theme);
-  });
-  
-  // 设置主题
-  function setTheme(theme) {
-    currentTheme = theme;
-    themeStyle.href = `styles/${theme}.css`;
+    // 点击标签切换
+    tab.addEventListener('click', () => {
+      switchToTab(tabIndex);
+    });
     
-    // 设置 body 的 data-theme 属性，用于特定主题的 CSS 选择器
-    document.body.setAttribute('data-theme', theme);
+    // 添加标签到容器
+    tabsContainer.appendChild(tab);
     
-    // 更新CodeMirror主题
-    if (theme === 'github-dark' || theme === 'dracula') {
-      cmEditor.setOption('theme', 'dracula');
-    } else if (theme === 'solarized-light') {
-      cmEditor.setOption('theme', 'solarized');
-    } else if (theme === 'solarized-dark') {
-      cmEditor.setOption('theme', 'solarized dark');
-    } else {
-      cmEditor.setOption('theme', 'default');
-    }
+    // 创建编辑器实例
+    const editorInstance = {
+      filePath: filePath,
+      originalContent: content,
+      isModified: false,
+      editor: null,
+      content: content
+    };
     
-    // 同时更新代码高亮样式
-    const hlStyle = document.getElementById('highlight-style');
-    if (theme === 'github-dark' || theme === 'solarized-dark' || theme === 'dracula') {
-      hlStyle.href = 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css';
-      document.body.classList.add('dark-mode');
-    } else {
-      hlStyle.href = 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css';
-      document.body.classList.remove('dark-mode');
-    }
+    // 添加到编辑器数组
+    editors.push(editorInstance);
     
-    // 保存主题设置
-    window.electronAPI.saveTheme(theme);
+    // 切换到新标签
+    switchToTab(tabIndex);
+    
+    return tabIndex;
   }
   
-  // 移除文件修改状态相关函数
-  
-  // 检查文件是否被修改 - 保留此函数但不再更新UI
-  function checkFileModified() {
-    if (currentFilePath) {
-      const currentContent = cmEditor.getValue();
-      isFileModified = (currentContent !== originalContent);
-      // 不再更新保存按钮UI
+  // 切换到指定标签
+  function switchToTab(index) {
+    if (index < 0 || index >= editors.length) return;
+    
+    // 如果当前有活动标签，保存其内容
+    if (activeTabIndex >= 0 && activeTabIndex < editors.length) {
+      const activeEditor = editors[activeTabIndex];
+      if (activeEditor.editor) {
+        activeEditor.content = activeEditor.editor.getValue();
+      }
     }
+    
+    // 更新标签样式
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    tabs[index].classList.add('active');
+    
+    // 设置新的活动标签
+    activeTabIndex = index;
+    
+    // 获取当前编辑器实例
+    const currentEditor = editors[activeTabIndex];
+    
+    // 清空编辑器容器
+    const editorWrapper = document.getElementById('editor-wrapper');
+    editorWrapper.innerHTML = '';
+    
+    // 重新创建编辑器实例，确保内容正确显示
+    currentEditor.editor = CodeMirror(editorWrapper, {
+      mode: 'markdown',
+      lineNumbers: true,
+      lineWrapping: true,
+      theme: getCurrentTheme(),
+      extraKeys: {"Enter": "newlineAndIndentContinueMarkdownList"},
+      styleActiveLine: true,
+      placeholder: "在此输入Markdown内容...",
+      value: currentEditor.content // 直接在创建时设置内容
+    });
+    
+    // 添加变化监听
+    currentEditor.editor.on('change', () => {
+      renderMarkdown(currentEditor.editor);
+      checkFileModified(currentEditor);
+      
+      // 更新标签标题（添加修改标记）
+      updateTabTitle(activeTabIndex);
+    });
+    
+    // 渲染预览
+    renderMarkdown(currentEditor.editor);
+  }
+  
+  // 关闭标签
+  function closeTab(index) {
+    if (editors.length <= 1) {
+      // 至少保留一个标签
+      createNewTab();
+    }
+    
+    // 移除标签元素
+    const tabToRemove = document.querySelector(`.tab[data-index="${index}"]`);
+    if (tabToRemove) {
+      tabToRemove.remove();
+    }
+    
+    // 从数组中移除
+    editors.splice(index, 1);
+    
+    // 更新剩余标签的索引
+    document.querySelectorAll('.tab').forEach((tab, i) => {
+      tab.dataset.index = i;
+    });
+    
+    // 如果关闭的是当前活动标签，切换到其他标签
+    if (activeTabIndex === index) {
+      const newIndex = Math.min(index, editors.length - 1);
+      switchToTab(newIndex);
+    } else if (activeTabIndex > index) {
+      // 如果关闭的标签在当前活动标签之前，更新活动标签索引
+      activeTabIndex--;
+    }
+  }
+  
+  // 更新标签标题（添加修改标记）
+  function updateTabTitle(index) {
+    const editor = editors[index];
+    if (!editor) return;
+    
+    const tab = document.querySelector(`.tab[data-index="${index}"]`);
+    if (!tab) return;
+    
+    const tabTitle = tab.querySelector('.tab-title');
+    if (!tabTitle) return;
+    
+    // 获取文件名
+    let fileName = editor.filePath ? editor.filePath.split('/').pop() : '未命名';
+    
+    // 检查是否已修改
+    const content = editor.editor ? editor.editor.getValue() : editor.content;
+    editor.isModified = (content !== editor.originalContent);
+    
+    // 添加修改标记
+    if (editor.isModified) {
+      if (!fileName.endsWith('*')) {
+        fileName += '*';
+      }
+    } else {
+      fileName = fileName.replace(/\*$/, '');
+    }
+    
+    tabTitle.textContent = fileName;
+  }
+  
+  // 获取当前主题
+  function getCurrentTheme() {
+    const theme = document.body.getAttribute('data-theme') || 'github-light';
+    
+    if (theme === 'github-dark' || theme === 'dracula') {
+      return 'dracula';
+    } else if (theme === 'solarized-light') {
+      return 'solarized';
+    } else if (theme === 'solarized-dark') {
+      return 'solarized dark';
+    } else {
+      return 'default';
+    }
+  }
+  
+  // 检查文件是否被修改
+  function checkFileModified(editorInstance) {
+    if (!editorInstance || !editorInstance.editor) return;
+    
+    const currentContent = editorInstance.editor.getValue();
+    editorInstance.isModified = (currentContent !== editorInstance.originalContent);
   }
   
   // 实时渲染Markdown
-  function renderMarkdown() {
-    const markdownText = cmEditor.getValue();
+  function renderMarkdown(editor) {
+    if (!editor) return;
+    
+    const markdownText = editor.getValue();
+    const preview = document.getElementById('preview');
     
     // 使用marked渲染Markdown
     if (window.marked) {
@@ -335,22 +417,29 @@ window.onload = function() {
   async function openFile() {
     const result = await window.electronAPI.openFile();
     if (!result.canceled && !result.error) {
-      cmEditor.setValue(result.content);
-      currentFilePath = result.filePath;
-      originalContent = result.content;
-      isFileModified = false;
+      // 创建新标签并加载文件
+      createNewTab(result.filePath, result.content);
     }
   }
   
   // 保存文件函数
   async function saveFile() {
-    const content = cmEditor.getValue();
-    const result = await window.electronAPI.saveFile(content, currentFilePath);
+    if (activeTabIndex < 0 || activeTabIndex >= editors.length) return;
+    
+    const currentEditor = editors[activeTabIndex];
+    if (!currentEditor || !currentEditor.editor) return;
+    
+    const content = currentEditor.editor.getValue();
+    const result = await window.electronAPI.saveFile(content, currentEditor.filePath);
     
     if (result.success) {
-      currentFilePath = result.filePath;
-      originalContent = content;
-      isFileModified = false;
+      currentEditor.filePath = result.filePath;
+      currentEditor.originalContent = content;
+      currentEditor.isModified = false;
+      
+      // 更新标签标题
+      updateTabTitle(activeTabIndex);
+      
       console.log('文件已保存:', result.filePath);
     } else if (result.canceled) {
       console.log('用户取消了保存操作');
@@ -359,29 +448,64 @@ window.onload = function() {
     }
   }
   
-  // 编辑器内容变化时渲染预览并检查修改状态
-  cmEditor.on('change', () => {
-    renderMarkdown();
-    checkFileModified();
+  // 监听来自主进程的菜单事件
+  window.electronAPI.onMenuNewFile(() => {
+    console.log('收到新建文件菜单事件');
+    createNewTab();
   });
   
-  // 移除顶部按钮事件监听
-  
-  // 监听来自主进程的菜单事件
   window.electronAPI.onMenuOpenFile(() => {
     console.log('收到打开文件菜单事件');
     openFile();
   });
-
+  
   window.electronAPI.onMenuSaveFile(() => {
     console.log('收到保存文件菜单事件');
     saveFile();
   });
   
-  // 初始化渲染
-  renderMarkdown();
+  window.electronAPI.onMenuSaveAsFile(() => {
+    console.log('收到另存为菜单事件');
+    saveFileAs();
+  });
+  
+  // 另存为函数
+  async function saveFileAs() {
+    if (activeTabIndex < 0 || activeTabIndex >= editors.length) return;
+    
+    const currentEditor = editors[activeTabIndex];
+    if (!currentEditor || !currentEditor.editor) return;
+    
+    const content = currentEditor.editor.getValue();
+    const result = await window.electronAPI.saveFileAs(content);
+    
+    if (result.success) {
+      currentEditor.filePath = result.filePath;
+      currentEditor.originalContent = content;
+      currentEditor.isModified = false;
+      
+      // 更新标签标题
+      updateTabTitle(activeTabIndex);
+      
+      console.log('文件已另存为:', result.filePath);
+    } else if (result.canceled) {
+      console.log('用户取消了另存为操作');
+    } else if (result.error) {
+      console.error('另存为失败:', result.error);
+    }
+  }
+  
+  // 新建标签按钮事件
+  newTabBtn.addEventListener('click', () => {
+    createNewTab();
+  });
+  
+  // 初始化第一个标签
+  createNewTab();
   
   // 设置初始宽度
+  const editorContainer = document.querySelector('.editor-container');
+  const previewContainer = document.querySelector('.preview-container');
   editorContainer.style.width = '50%';
   previewContainer.style.width = '50%';
   editorContainer.style.flex = '0 0 auto';
