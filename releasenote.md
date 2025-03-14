@@ -6,6 +6,7 @@
 	- Add menu bar, and the previous Open, Save and Style buttons are moved to here.
 	- Add label page so that you can edit multiple files simultaneously.
 	- New and Save As function in File menu.
+	- Change icon.
 - Debug:
 	- The editor pane remains white under Solarized Light style.
 	- A new file cannot be saved.
