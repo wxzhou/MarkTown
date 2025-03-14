@@ -529,7 +529,46 @@ window.onload = function() {
   editorContainer.style.width = '50%';
   previewContainer.style.width = '50%';
   editorContainer.style.flex = '0 0 auto';
-  previewContainer.style.flex = '0 0 auto';
+  previewContainer.style.flex = '1 0 auto'; // 修改这里，让预览区域可以自适应
+  
+  // 添加分割线拖动功能 - 完全重写
+  const resizer = document.querySelector('.resizer');
+  if (resizer) {
+    let isResizing = false;
+    
+    resizer.addEventListener('mousedown', (e) => {
+      isResizing = true;
+      document.body.style.cursor = 'col-resize';
+      resizer.classList.add('active');
+      
+      // 阻止默认事件和文本选择
+      e.preventDefault();
+      document.body.classList.add('no-select');
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+      if (!isResizing) return;
+      
+      // 计算编辑器容器的宽度百分比
+      const containerWidth = editorContainer.parentElement.clientWidth;
+      const newWidth = (e.clientX / containerWidth) * 100;
+      
+      // 限制拖动范围，确保两个区域都有合理的宽度
+      if (newWidth >= 20 && newWidth <= 80) {
+        editorContainer.style.width = `${newWidth}%`;
+        previewContainer.style.width = `${100 - newWidth}%`;
+      }
+    });
+    
+    document.addEventListener('mouseup', () => {
+      if (isResizing) {
+        isResizing = false;
+        document.body.style.cursor = '';
+        resizer.classList.remove('active');
+        document.body.classList.remove('no-select');
+      }
+    });
+  }
   
   // 监听主题设置事件
   window.electronAPI.onSetTheme((theme) => {

@@ -204,3 +204,22 @@
 #new-tab-btn:hover {
   background-color: #e1e1e1;
 }
+
+/* 分割线样式 */
+.resizer {
+  width: 5px;
+  background-color: #ddd;
+  cursor: col-resize;
+  flex: 0 0 auto;
+  user-select: none;
+}
+
+.resizer:hover, .resizer.active {
+  background-color: #ccc;
+}
+
+/* 防止拖动时选择文本 */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+}
