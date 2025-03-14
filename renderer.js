@@ -497,6 +497,29 @@ window.onload = function() {
     createNewTab();
   });
   
+  // 将新建标签按钮移到最右边标签页的右侧
+  try {
+    // 获取父元素
+    const parentElement = newTabBtn.parentElement;
+    
+    // 如果新建按钮不在tabsContainer中，则移动它
+    if (parentElement && parentElement !== tabsContainer) {
+      // 从当前父元素中移除按钮
+      parentElement.removeChild(newTabBtn);
+      
+      // 将按钮添加到tabsContainer中
+      tabsContainer.appendChild(newTabBtn);
+    }
+    
+    // 调整样式，确保按钮紧贴着最右边的标签页
+    newTabBtn.style.order = '999'; // 使用较大的order值确保它在最右边
+    newTabBtn.style.marginLeft = '0';
+    newTabBtn.style.borderLeft = 'none'; // 移除左边框，使其紧贴标签页
+  } catch (error) {
+    console.error('移动新建标签按钮时出错:', error);
+    // 出错时不影响其他功能
+  }
+  
   // 初始化第一个标签
   createNewTab();
   
