@@ -104,3 +104,70 @@ button:hover {
 .markdown-body pre code {
   background-color: transparent;
 }
+
+
+/* 标签页样式 */
+.tabs-container {
+  display: flex;
+  background-color: #002b36;
+  border-bottom: 1px solid #073642;
+  height: 32px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+#tabs {
+  display: flex;
+  flex-grow: 1;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  height: 32px;
+  background-color: #002b36;
+  border-right: 1px solid #073642;
+  cursor: pointer;
+}
+
+.tab.active {
+  background-color: #073642;
+  border-bottom: none;
+}
+
+.tab-title {
+  color: #839496;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+.tab-close {
+  margin-left: 8px;
+  color: #586e75;
+  font-size: 14px;
+}
+
+.tab-close:hover {
+  color: #93a1a1;
+}
+
+#new-tab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: #002b36;
+  border-left: 1px solid #073642;
+  cursor: pointer;
+  font-size: 18px;
+  color: #586e75;
+}
+
+#new-tab-btn:hover {
+  background-color: #073642;
+}
