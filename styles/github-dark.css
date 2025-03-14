@@ -140,3 +140,70 @@
   background-color: #30363d;
   border: 0;
 }
+
+
+/* 标签页样式 */
+.tabs-container {
+  display: flex;
+  background-color: #24292e;
+  border-bottom: 1px solid #444;
+  height: 32px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+#tabs {
+  display: flex;
+  flex-grow: 1;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  height: 32px;
+  background-color: #24292e;
+  border-right: 1px solid #444;
+  cursor: pointer;
+}
+
+.tab.active {
+  background-color: #1f2428;
+  border-bottom: none;
+}
+
+.tab-title {
+  color: #c9d1d9;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+.tab-close {
+  margin-left: 8px;
+  color: #8b949e;
+  font-size: 14px;
+}
+
+.tab-close:hover {
+  color: #c9d1d9;
+}
+
+#new-tab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: #24292e;
+  border-left: 1px solid #444;
+  cursor: pointer;
+  font-size: 18px;
+  color: #8b949e;
+}
+
+#new-tab-btn:hover {
+  background-color: #2d333b;
+}
