@@ -1,6 +1,6 @@
 {
   "name": "MarkTown",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "完全由AI编写的的MarkDown编辑器",
   "main": "main.js",
   "scripts": {
